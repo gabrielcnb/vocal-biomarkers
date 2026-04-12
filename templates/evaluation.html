@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avaliação dos Modelos - Biomarcadores Vocais</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="nav-brand">Biomarcadores Vocais</a>
+            <div class="nav-links">
+                <a href="/">Predição</a>
+                <a href="/evaluation" class="active">Avaliação dos Modelos</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="disclaimer">
+            <strong>AVISO IMPORTANTE:</strong> Esta ferramenta é exclusivamente para fins de pesquisa e educação.
+            <strong>NÃO</strong> é um instrumento de diagnóstico médico.
+        </div>
+
+        <h1>Dashboard de Avaliação dos Modelos</h1>
+
+        <div class="card">
+            <h2>Sobre o Dataset</h2>
+            <div class="dataset-info">
+                <div class="info-item">
+                    <strong>Fonte:</strong> UCI Machine Learning Repository - Parkinsons Dataset
+                </div>
+                <div class="info-item">
+                    <strong>Amostras:</strong> 195 gravações de 31 sujeitos (23 com Parkinson, 8 saudáveis)
+                </div>
+                <div class="info-item">
+                    <strong>Features:</strong> 22 biomarcadores vocais extraídos de fonações sustentadas
+                </div>
+                <div class="info-item">
+                    <strong>Distribuição:</strong> 147 amostras PD (75.4%) / 48 saudáveis (24.6%)
+                </div>
+                <div class="info-item">
+                    <strong>Split:</strong> GroupShuffleSplit — todas as gravações do mesmo sujeito
+                    ficam no mesmo conjunto (treino OU teste), prevenindo data leakage
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Modelos Treinados</h2>
+            <ul class="model-list">
+                <li><strong>SVM (RBF)</strong> — Support Vector Machine com kernel Gaussiano, class_weight='balanced'</li>
+                <li><strong>Random Forest</strong> — Ensemble de árvores de decisão, class_weight='balanced'</li>
+                <li><strong>XGBoost</strong> — Gradient boosting com scale_pos_weight para desbalanceamento</li>
+            </ul>
+            <p>Todos otimizados via GridSearchCV com StratifiedKFold(10) e scoring='roc_auc'.</p>
+        </div>
+
+        {% if plots.roc %}
+        <div class="card">
+            <h2>Curvas ROC</h2>
+            <p>A área sob a curva (AUC) mede a capacidade discriminativa do modelo.
+               AUC = 1.0 indica separação perfeita; AUC = 0.5 indica classificação aleatória.</p>
+            <img src="{{ url_for('static', filename='plots/roc_curves.png') }}" alt="Curvas ROC" class="plot-img">
+        </div>
+        {% endif %}
+
+        {% if plots.confusion %}
+        <div class="card">
+            <h2>Matrizes de Confusão</h2>
+            <p>Distribuição de predições corretas e incorretas no conjunto de teste (group-aware split).</p>
+            <img src="{{ url_for('static', filename='plots/confusion_matrices.png') }}" alt="Matrizes de Confusão" class="plot-img">
+        </div>
+        {% endif %}
+
+        {% if plots.importance %}
+        <div class="card">
+            <h2>Importância das Features</h2>
+            <p>As 15 features mais relevantes para cada modelo. SVM usa permutation importance;
+               Random Forest e XGBoost usam importância baseada em Gini/ganho.</p>
+            <img src="{{ url_for('static', filename='plots/feature_importance.png') }}" alt="Importância das Features" class="plot-img">
+        </div>
+        {% endif %}
+
+        {% if plots.comparison %}
+        <div class="card">
+            <h2>Comparação de Métricas</h2>
+            <p>Desempenho dos 3 modelos nas principais métricas de classificação.</p>
+            <img src="{{ url_for('static', filename='plots/metrics_comparison.png') }}" alt="Comparação de Métricas" class="plot-img">
+        </div>
+        {% endif %}
+
+        {% if not (plots.roc or plots.confusion or plots.importance or plots.comparison) %}
+        <div class="alert alert-warning">
+            <strong>Nenhum plot disponível.</strong> Execute <code>python train.py</code> para treinar os modelos e gerar os gráficos de avaliação.
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <h2>Nota Metodológica: Group-Aware Splitting</h2>
+            <p>
+                O dataset contém múltiplas gravações por sujeito (~6 por pessoa). Se usarmos um split
+                aleatório simples (train_test_split), gravações do mesmo sujeito podem aparecer
+                tanto no treino quanto no teste. Isso causa <strong>data leakage</strong>: o modelo
+                aprende a reconhecer a voz do indivíduo em vez dos biomarcadores de Parkinson.
+            </p>
+            <p>
+                Por isso, usamos <strong>GroupShuffleSplit</strong>, que garante que <em>todas</em>
+                as gravações de cada sujeito fiquem exclusivamente no conjunto de treino ou de teste.
+                Os resultados reportados são honestos e representam a capacidade real de generalização
+                para sujeitos nunca vistos.
+            </p>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Biomarcadores Vocais para Detecção de Parkinson &mdash; Projeto de Pesquisa</p>
+            <p>Referências: Little et al. (2007), Little et al. (2009), Tsanas et al. (2010)</p>
+        </div>
+    </footer>
+</body>
+</html>

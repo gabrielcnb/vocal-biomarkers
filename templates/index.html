@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biomarcadores Vocais para Detecção de Parkinson</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="nav-brand">Biomarcadores Vocais</a>
+            <div class="nav-links">
+                <a href="/" class="active">Predição</a>
+                <a href="/evaluation">Avaliação dos Modelos</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="disclaimer">
+            <strong>AVISO IMPORTANTE:</strong> Esta ferramenta é exclusivamente para fins de pesquisa e educação.
+            <strong>NÃO</strong> é um instrumento de diagnóstico médico. Consulte sempre um profissional de saúde
+            qualificado para avaliação clínica. Resultados não substituem exames médicos.
+        </div>
+
+        <h1>Detecção de Indicadores de Parkinson por Análise Vocal</h1>
+        <p class="subtitle">
+            Baseado no dataset de biomarcadores vocais de Little et al. (2007).
+            Análise de disfonias presentes em ~90% dos pacientes com doença de Parkinson.
+        </p>
+
+        {% if not model_exists %}
+        <div class="alert alert-warning">
+            <strong>Modelo não treinado.</strong> Execute <code>python train.py</code> antes de fazer predições.
+        </div>
+        {% endif %}
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="upload">Enviar Áudio</button>
+            <button class="tab-btn" data-tab="manual">Entrada Manual</button>
+        </div>
+
+        <!-- Tab: Upload -->
+        <div id="tab-upload" class="tab-content active">
+            <div class="card">
+                <h2>Análise de Arquivo de Áudio</h2>
+                <p>Envie uma gravação de vogal sustentada (/a/) com pelo menos 3 segundos. Formato WAV recomendado.</p>
+                <form id="upload-form" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="audio-file">Arquivo de Áudio (.wav)</label>
+                        <input type="file" id="audio-file" name="audio" accept=".wav,.mp3,.ogg,.flac">
+                    </div>
+                    <button type="submit" class="btn btn-primary" {{ 'disabled' if not model_exists }}>
+                        Analisar Áudio
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tab: Manual -->
+        <div id="tab-manual" class="tab-content">
+            <div class="card">
+                <h2>Entrada Manual de Features</h2>
+                <p>Insira os 22 biomarcadores vocais extraídos por software de análise acústica (ex: Praat).</p>
+                <form id="manual-form">
+                    {% for group_name, features in feature_groups.items() %}
+                    <fieldset>
+                        <legend>{{ group_name }}</legend>
+                        <div class="feature-grid">
+                            {% for fname, fdesc in features %}
+                            <div class="form-group">
+                                <label for="feat-{{ loop.index0 }}" title="{{ fdesc }}">
+                                    {{ fname }}
+                                    <span class="feature-desc">{{ fdesc }}</span>
+                                </label>
+                                <input type="number" step="any" id="feat-{{ loop.index0 }}"
+                                       name="{{ fname }}" placeholder="0.0" required>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </fieldset>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-primary" {{ 'disabled' if not model_exists }}>
+                        Analisar Features
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="results" class="card results-card" style="display: none;">
+            <h2>Resultado da Análise</h2>
+            <div id="result-content"></div>
+            <div class="disclaimer disclaimer-small">
+                Este resultado é meramente indicativo e <strong>não constitui diagnóstico médico</strong>.
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Biomarcadores Vocais para Detecção de Parkinson &mdash; Projeto de Pesquisa</p>
+            <p>Referências: Little et al. (2007), Little et al. (2009), Tsanas et al. (2010)</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
