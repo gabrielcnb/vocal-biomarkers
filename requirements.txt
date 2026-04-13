@@ -8,4 +8,4 @@ seaborn>=0.13
 parselmouth>=0.4
 joblib>=1.3
 scipy>=1.12
-nolds>=0.5
+# nolds removed - googleads dependency incompatible with modern setuptools
