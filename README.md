@@ -1,119 +1,119 @@
-# Biomarcadores Vocais para Detecção de Parkinson
+# Vocal Biomarkers for Parkinson's Detection
 
-## Resumo
+## Overview
 
-Sistema de machine learning para detecção de indicadores da doença de Parkinson a partir de biomarcadores vocais. Utiliza o dataset UCI Parkinson's (Little et al., 2007) com 195 gravações de 31 sujeitos, extraindo 22 medidas acústicas de fonações sustentadas. Implementa três classificadores (SVM, Random Forest, XGBoost) com **split group-aware** para evitar data leakage entre sujeitos.
+A machine learning system for detecting indicators of Parkinson's disease from vocal biomarkers. It uses the UCI Parkinson's dataset (Little et al., 2007), comprising 195 recordings from 31 subjects, and extracts 22 acoustic measures from sustained phonations. It implements three classifiers (SVM, Random Forest, XGBoost) with a **group-aware split** to prevent data leakage across subjects.
 
-**AVISO: Esta ferramenta é exclusivamente para fins de pesquisa e educação. NÃO é um instrumento de diagnóstico médico.**
+**WARNING: This tool is intended solely for research and educational purposes. It is NOT a medical diagnostic instrument.**
 
-## Contexto Científico
+## Scientific Background
 
-A disartria e disfonia são sintomas presentes em aproximadamente 90% dos pacientes com doença de Parkinson (Logemann et al., 1978). As alterações vocais incluem:
+Dysarthria and dysphonia are symptoms present in roughly 90% of patients with Parkinson's disease (Logemann et al., 1978). Vocal alterations include:
 
-- **Jitter**: variações involuntárias na frequência fundamental (F0), indicando instabilidade no controle das pregas vocais
-- **Shimmer**: variações na amplitude do sinal, refletindo irregularidades na vibração glótica
-- **HNR/NHR**: razão harmônico-ruído, medindo a presença de ruído na voz
-- **RPDE, DFA, D2**: medidas não-lineares que capturam a complexidade dinâmica do sinal vocal
-- **PPE, spread1, spread2**: medidas de variação de pitch que detectam monotonia vocal (característica de PD)
+- **Jitter**: involuntary variations in the fundamental frequency (F0), indicating instability in vocal fold control
+- **Shimmer**: variations in signal amplitude, reflecting irregularities in glottal vibration
+- **HNR/NHR**: harmonics-to-noise ratio, measuring the presence of noise in the voice
+- **RPDE, DFA, D2**: nonlinear measures that capture the dynamic complexity of the vocal signal
+- **PPE, spread1, spread2**: pitch variation measures that detect vocal monotonicity (characteristic of PD)
 
-Essas alterações podem ser detectadas antes dos sintomas motores clássicos (tremor, rigidez), tornando a análise vocal um potencial biomarcador precoce.
+These alterations can be detected before the classic motor symptoms (tremor, rigidity) appear, making vocal analysis a potential early biomarker.
 
 ## Dataset
 
-**Fonte**: [UCI Machine Learning Repository - Parkinsons Dataset](https://archive.ics.uci.edu/ml/datasets/parkinsons)
+**Source**: [UCI Machine Learning Repository - Parkinsons Dataset](https://archive.ics.uci.edu/ml/datasets/parkinsons)
 
-| Propriedade | Valor |
+| Property | Value |
 |---|---|
-| Amostras | 195 gravações de fonação sustentada (/a/) |
-| Sujeitos | 31 (23 com Parkinson, 8 saudáveis) |
-| Features | 22 biomarcadores vocais |
-| Distribuição | 147 PD (75.4%) / 48 saudáveis (24.6%) |
+| Samples | 195 sustained phonation recordings (/a/) |
+| Subjects | 31 (23 with Parkinson's, 8 healthy) |
+| Features | 22 vocal biomarkers |
+| Distribution | 147 PD (75.4%) / 48 healthy (24.6%) |
 
-### Features Extraídas
+### Extracted Features
 
-| Grupo | Features | Descrição |
+| Group | Features | Description |
 |---|---|---|
-| Frequência | Fo, Fhi, Flo | Frequência fundamental (média, máxima, mínima) |
-| Jitter | Jitter(%), Jitter(Abs), RAP, PPQ, DDP | Variações ciclo-a-ciclo na frequência |
-| Shimmer | Shimmer, Shimmer(dB), APQ3, APQ5, APQ, DDA | Variações ciclo-a-ciclo na amplitude |
-| Ruído | NHR, HNR | Razão ruído-harmônico e harmônico-ruído |
-| Não-lineares | RPDE, DFA, D2, spread1, spread2, PPE | Complexidade dinâmica e variação de pitch |
+| Frequency | Fo, Fhi, Flo | Fundamental frequency (mean, maximum, minimum) |
+| Jitter | Jitter(%), Jitter(Abs), RAP, PPQ, DDP | Cycle-to-cycle variations in frequency |
+| Shimmer | Shimmer, Shimmer(dB), APQ3, APQ5, APQ, DDA | Cycle-to-cycle variations in amplitude |
+| Noise | NHR, HNR | Noise-to-harmonics and harmonics-to-noise ratios |
+| Nonlinear | RPDE, DFA, D2, spread1, spread2, PPE | Dynamic complexity and pitch variation |
 
-## Metodologia
+## Methodology
 
-### Split Group-Aware (CRÍTICO)
+### Group-Aware Split (CRITICAL)
 
-O dataset contém múltiplas gravações por sujeito (~6 cada). Um split aleatório convencional (`train_test_split`) causaria **data leakage**: gravações do mesmo sujeito apareceriam tanto no treino quanto no teste. O modelo aprenderia a reconhecer a identidade vocal do indivíduo em vez dos biomarcadores de Parkinson.
+The dataset contains multiple recordings per subject (~6 each). A conventional random split (`train_test_split`) would cause **data leakage**: recordings from the same subject would appear in both the training and test sets. The model would learn to recognize the individual's vocal identity rather than the Parkinson's biomarkers.
 
-**Solução**: `GroupShuffleSplit` do scikit-learn, que garante que **todas** as gravações de cada sujeito fiquem exclusivamente no conjunto de treino OU de teste. Os resultados reportados representam a capacidade real de generalização para sujeitos nunca vistos.
+**Solution**: scikit-learn's `GroupShuffleSplit`, which ensures that **all** of a given subject's recordings stay exclusively in either the training OR the test set. The reported results represent the model's true ability to generalize to previously unseen subjects.
 
-### Classificadores
+### Classifiers
 
-1. **SVM (RBF)**: GridSearchCV sobre C=[0.1, 1, 10, 100], gamma=['scale', 'auto'], class_weight='balanced'
+1. **SVM (RBF)**: GridSearchCV over C=[0.1, 1, 10, 100], gamma=['scale', 'auto'], class_weight='balanced'
 2. **Random Forest**: n_estimators=[100, 200, 500], max_depth=[5, 10, None], class_weight='balanced'
 3. **XGBoost**: n_estimators=[100, 200], max_depth=[3, 5, 7], learning_rate=[0.01, 0.1], scale_pos_weight
 
-Todos otimizados com StratifiedKFold(10) e scoring='roc_auc'. StandardScaler ajustado apenas no treino.
+All are tuned with StratifiedKFold(10) and scoring='roc_auc'. StandardScaler is fitted on the training set only.
 
-## Resultados (Group-Aware Split)
+## Results (Group-Aware Split)
 
-| Modelo | Acurácia | Precisão | Recall | F1-Score | AUC (teste) | AUC (CV) |
+| Model | Accuracy | Precision | Recall | F1-Score | AUC (test) | AUC (CV) |
 |---|---|---|---|---|---|---|
 | **SVM** | 0.9070 | 0.9444 | 0.9444 | 0.9444 | **0.9325** | 0.9955 |
 | Random Forest | 0.9302 | 0.9459 | 0.9722 | 0.9589 | 0.9246 | 0.9705 |
 | XGBoost | 0.9302 | 0.9459 | 0.9722 | 0.9589 | 0.9286 | 0.9636 |
 
-**Nota**: Os resultados com group-aware split são tipicamente inferiores aos reportados com split aleatório na literatura (~95-97% acurácia), justamente porque não há vazamento de informação entre sujeitos. Estes resultados são mais honestos e realistas.
+**Note**: Results obtained with a group-aware split are typically lower than those reported with a random split in the literature (~95-97% accuracy), precisely because there is no information leakage between subjects. These results are more honest and realistic.
 
-## Análise de Features
+## Feature Analysis
 
-As features mais discriminativas (por importância nos modelos):
-- **spread1**: medida de variação fundamental de frequência — consistentemente a feature mais importante
-- **PPE**: entropia de período de pitch — captura monotonia vocal
-- **MDVP:Fo(Hz)**: frequência fundamental média
-- **HNR**: razão harmônico-ruído
-- **DFA**: análise de flutuação destendenciada
-- **RPDE**: entropia de recorrência
+The most discriminative features (by importance across the models):
+- **spread1**: a measure of fundamental frequency variation — consistently the most important feature
+- **PPE**: pitch period entropy — captures vocal monotonicity
+- **MDVP:Fo(Hz)**: mean fundamental frequency
+- **HNR**: harmonics-to-noise ratio
+- **DFA**: detrended fluctuation analysis
+- **RPDE**: recurrence entropy
 
-## Instalação e Uso
+## Installation and Usage
 
 ```bash
-# Instalar dependências
+# Install dependencies
 pip install -r requirements.txt
 
-# Treinar modelos (download automático do dataset)
+# Train models (the dataset is downloaded automatically)
 python train.py
 
-# Iniciar aplicação web
+# Start the web application
 python app.py
-# Abrir http://127.0.0.1:5000
+# Open http://127.0.0.1:5000
 ```
 
-### Extração de Features de Áudio
+### Audio Feature Extraction
 
-A aplicação aceita arquivos WAV de vogal sustentada (/a/) e extrai automaticamente os 22 biomarcadores usando Parselmouth/Praat. Para as medidas não-lineares (RPDE, DFA, D2), utiliza a biblioteca nolds quando disponível.
+The application accepts WAV files of a sustained vowel (/a/) and automatically extracts the 22 biomarkers using Parselmouth/Praat. For the nonlinear measures (RPDE, DFA, D2), it uses the nolds library when available.
 
-## Estrutura do Projeto
+## Project Structure
 
 ```
 vocal-biomarkers/
-├── app.py                  # Servidor Flask
-├── train.py                # Pipeline de treinamento
-├── config.py               # Configurações centrais
+├── app.py                  # Flask server
+├── train.py                # Training pipeline
+├── config.py               # Central configuration
 ├── ml/
-│   ├── dataset.py          # Carregamento e split group-aware
-│   ├── train_models.py     # Treinamento SVM, RF, XGBoost
-│   ├── evaluate.py         # Avaliação e geração de plots
-│   └── predict.py          # Predição com modelo salvo
+│   ├── dataset.py          # Loading and group-aware split
+│   ├── train_models.py     # SVM, RF, XGBoost training
+│   ├── evaluate.py         # Evaluation and plot generation
+│   └── predict.py          # Prediction with the saved model
 ├── audio/
-│   └── extractor.py        # Extração de features via Parselmouth
+│   └── extractor.py        # Feature extraction via Parselmouth
 ├── templates/              # HTML (Jinja2)
-├── static/                 # CSS, JS, plots gerados
-├── data/raw/               # Dataset UCI
-└── models/                 # Modelos treinados (.joblib)
+├── static/                 # CSS, JS, generated plots
+├── data/raw/               # UCI dataset
+└── models/                 # Trained models (.joblib)
 ```
 
-## Referências
+## References
 
 1. **Little, M.A., McSharry, P.E., Roberts, S.J., Costello, D.A.E., Moroz, I.M.** (2007). Exploiting Nonlinear Recurrence and Fractal Scaling Properties for Voice Disorder Detection. *BioMedical Engineering OnLine*, 6:23.
 
@@ -121,6 +121,6 @@ vocal-biomarkers/
 
 3. **Tsanas, A., Little, M.A., McSharry, P.E., Ramig, L.O.** (2010). Accurate Telemonitoring of Parkinson's Disease Progression by Noninvasive Speech Tests. *IEEE Transactions on Biomedical Engineering*, 57(4):884-893.
 
-## Licença
+## License
 
-MIT License. Ver arquivo [LICENSE](LICENSE).
+MIT License. See the [LICENSE](LICENSE) file.
