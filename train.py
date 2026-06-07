@@ -53,7 +53,7 @@ def main():
     print("-" * 78)
 
     best = max(metrics.items(), key=lambda x: x[1]["auc"])
-    print(f"\nMelhor modelo (por AUC no teste): {best[0]} — AUC = {best[1]['auc']:.4f}")
+    print(f"\nMelhor modelo (por AUC no teste): {best[0]}, AUC = {best[1]['auc']:.4f}")
     print(f"Tempo total: {elapsed:.1f}s")
     print(f"\nPlots salvos em: static/plots/")
     print(f"Modelos salvos em: models/")

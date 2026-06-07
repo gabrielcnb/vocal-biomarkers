@@ -68,8 +68,8 @@ All are tuned with StratifiedKFold(10) and scoring='roc_auc'. StandardScaler is 
 ## Feature Analysis
 
 The most discriminative features (by importance across the models):
-- **spread1**: a measure of fundamental frequency variation — consistently the most important feature
-- **PPE**: pitch period entropy — captures vocal monotonicity
+- **spread1**: a measure of fundamental frequency variation, consistently the most important feature
+- **PPE**: pitch period entropy, captures vocal monotonicity
 - **MDVP:Fo(Hz)**: mean fundamental frequency
 - **HNR**: harmonics-to-noise ratio
 - **DFA**: detrended fluctuation analysis

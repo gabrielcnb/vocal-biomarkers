@@ -1,4 +1,4 @@
-// Vocal Biomarkers — Frontend Logic
+// Vocal Biomarkers: Frontend Logic
 
 document.addEventListener("DOMContentLoaded", () => {
     // Tab switching

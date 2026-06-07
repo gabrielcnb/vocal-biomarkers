@@ -2,7 +2,7 @@
 
 CRÍTICO: Usa GroupShuffleSplit para garantir que todas as gravações
 do mesmo sujeito fiquem no mesmo conjunto (treino OU teste).
-Sem isso, há data leakage — o modelo "decora" a voz do sujeito,
+Sem isso, há data leakage: o modelo "decora" a voz do sujeito,
 não os biomarcadores de Parkinson.
 """
 import re

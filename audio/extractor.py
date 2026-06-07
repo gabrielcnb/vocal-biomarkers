@@ -183,7 +183,7 @@ def _extract_nonlinear(f0_values: np.ndarray, sound) -> dict:
             result[key] = MEDIAN_VALUES[key]
             used_median.append(key)
 
-    # spread1, spread2, PPE — sempre median (requerem algoritmos especializados)
+    # spread1, spread2, PPE: sempre median (requerem algoritmos especializados)
     for key in ["spread1", "spread2", "PPE"]:
         result[key] = MEDIAN_VALUES[key]
 

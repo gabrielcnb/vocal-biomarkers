@@ -41,7 +41,7 @@
                     <strong>Distribuição:</strong> 147 amostras PD (75.4%) / 48 saudáveis (24.6%)
                 </div>
                 <div class="info-item">
-                    <strong>Split:</strong> GroupShuffleSplit — todas as gravações do mesmo sujeito
+                    <strong>Split:</strong> GroupShuffleSplit. Todas as gravações do mesmo sujeito
                     ficam no mesmo conjunto (treino OU teste), prevenindo data leakage
                 </div>
             </div>
@@ -50,9 +50,9 @@
         <div class="card">
             <h2>Modelos Treinados</h2>
             <ul class="model-list">
-                <li><strong>SVM (RBF)</strong> — Support Vector Machine com kernel Gaussiano, class_weight='balanced'</li>
-                <li><strong>Random Forest</strong> — Ensemble de árvores de decisão, class_weight='balanced'</li>
-                <li><strong>XGBoost</strong> — Gradient boosting com scale_pos_weight para desbalanceamento</li>
+                <li><strong>SVM (RBF):</strong> Support Vector Machine com kernel Gaussiano, class_weight='balanced'</li>
+                <li><strong>Random Forest:</strong> Ensemble de árvores de decisão, class_weight='balanced'</li>
+                <li><strong>XGBoost:</strong> Gradient boosting com scale_pos_weight para desbalanceamento</li>
             </ul>
             <p>Todos otimizados via GridSearchCV com StratifiedKFold(10) e scoring='roc_auc'.</p>
         </div>
