@@ -1,4 +1,4 @@
-"""Predição usando o melhor modelo treinado."""
+"""Prediction with the best trained model."""
 import numpy as np
 import joblib
 
@@ -14,7 +14,7 @@ def load_model():
 
 
 def predict_from_features(feature_dict: dict) -> dict:
-    """Prediz a partir de um dicionário de features.
+    """Predict from a dict of features.
 
     Args:
         feature_dict: {feature_name: value}
@@ -45,7 +45,7 @@ def predict_from_features(feature_dict: dict) -> dict:
 
     return {
         "prediction": prediction,
-        "label": "Parkinson" if prediction == 1 else "Saudável",
+        "label": "Parkinson" if prediction == 1 else "Healthy",
         "confidence": float(max(proba)),
         "prob_healthy": float(proba[0]),
         "prob_parkinson": float(proba[1]),

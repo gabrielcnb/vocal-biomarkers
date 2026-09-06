@@ -1,9 +1,9 @@
-"""Carregamento e pré-processamento do dataset UCI Parkinson's.
+"""Loading and preprocessing of the UCI Parkinson's dataset.
 
-CRÍTICO: Usa GroupShuffleSplit para garantir que todas as gravações
+CRITICAL: GroupShuffleSplit is used so that every recording from a given
 do mesmo sujeito fiquem no mesmo conjunto (treino OU teste).
-Sem isso, há data leakage: o modelo "decora" a voz do sujeito,
-não os biomarcadores de Parkinson.
+Without it there is data leakage: the model memorises the subject's voice
+rather than the Parkinson's biomarkers.
 """
 import re
 import urllib.request
@@ -26,7 +26,7 @@ from config import (
 
 
 def download_dataset() -> Path:
-    """Baixa o dataset UCI se não existir localmente.
+    """Download the UCI dataset when it is not already local.
 
     Tenta primeiro a URL direta do UCI. Se falhar (502/timeout),
     usa sklearn.datasets.fetch_openml como fallback.
@@ -42,19 +42,19 @@ def download_dataset() -> Path:
             print(f"UCI indisponivel ({e}). Usando OpenML como fallback...")
             _download_from_openml()
     else:
-        print(f"Dataset já existe em {DATASET_PATH}")
+        print(f"Dataset already present at {DATASET_PATH}")
     return DATASET_PATH
 
 
 def _download_from_openml():
-    """Baixa via sklearn fetch_openml e reconstrói o CSV original.
+    """Download through sklearn fetch_openml and rebuild the original CSV.
 
     OpenML parkinsons v1 tem colunas V1-V22, target '1'=healthy/'2'=PD.
     Precisamos mapear para os nomes originais do UCI dataset.
     """
     from sklearn.datasets import fetch_openml
 
-    # Nomes originais do UCI dataset (ordem das 22 features)
+    # Original UCI dataset names, in the order of the 22 features
     ORIGINAL_FEATURE_NAMES = [
         "MDVP:Fo(Hz)", "MDVP:Fhi(Hz)", "MDVP:Flo(Hz)",
         "MDVP:Jitter(%)", "MDVP:Jitter(Abs)", "MDVP:RAP", "MDVP:PPQ", "Jitter:DDP",
@@ -68,11 +68,11 @@ def _download_from_openml():
     dataset = fetch_openml(name="parkinsons", version=1, as_frame=True)
     df_raw = dataset.data.copy()
 
-    # Renomear V1-V22 para nomes originais
+    # Rename V1-V22 to the original names
     rename_map = {f"V{i+1}": name for i, name in enumerate(ORIGINAL_FEATURE_NAMES)}
     df = df_raw.rename(columns=rename_map)
 
-    # Gerar nomes com subject IDs (31 sujeitos, ~6 gravacoes cada)
+    # Build names with subject IDs (31 subjects, ~6 recordings each)
     names = []
     subject_map = {}
     for i in range(len(df)):
@@ -82,7 +82,7 @@ def _download_from_openml():
         names.append(f"phon_R01_S{sid:02d}_{rec}")
     df.insert(0, "name", names)
 
-    # Target: OpenML usa '1'=healthy, '2'=PD -> converter para 0=healthy, 1=PD
+    # Target: OpenML uses '1'=healthy, '2'=PD -> convert to 0=healthy, 1=PD
     target = dataset.target.astype(int)
     df["status"] = (target == 2).astype(int).values
 
@@ -93,7 +93,7 @@ def _download_from_openml():
 def extract_subject_id(name: str) -> str:
     """Extrai o ID do sujeito da coluna 'name'.
 
-    Padrão: phon_R01_S{subject_id}_{recording_number}
+    Pattern: phon_R01_S{subject_id}_{recording_number}
     Ex: 'phon_R01_S01_1' -> 'S01'
     """
     match = re.search(r"(S\d+)", name)
@@ -108,22 +108,22 @@ def load_and_split():
     Returns:
         tuple: (X_train, X_test, y_train, y_test, feature_names, scaler, groups)
     """
-    # Download se necessário
+    # Download when needed
     download_dataset()
 
     # Carregar
     df = pd.read_csv(DATASET_PATH)
     print(f"Dataset carregado: {df.shape[0]} amostras, {df.shape[1]} colunas")
 
-    # Extrair IDs dos sujeitos
+    # Extract the subject IDs
     groups = df["name"].apply(extract_subject_id).values
     unique_subjects = np.unique(groups)
-    print(f"Sujeitos únicos: {len(unique_subjects)}")
+    print(f"Unique subjects: {len(unique_subjects)}")
 
-    # Contar PD vs saudáveis
+    # Count PD vs healthy
     pd_count = (df[TARGET_COLUMN] == 1).sum()
     healthy_count = (df[TARGET_COLUMN] == 0).sum()
-    print(f"Distribuição: {pd_count} PD, {healthy_count} saudáveis")
+    print(f"Distribution: {pd_count} PD, {healthy_count} healthy")
 
     # Separar features e target
     feature_names = [c for c in df.columns if c not in DROP_COLUMNS]
@@ -138,10 +138,10 @@ def load_and_split():
     y_train, y_test = y[train_idx], y[test_idx]
 
     print(f"Split group-aware: {len(train_idx)} treino, {len(test_idx)} teste")
-    print(f"  Treino: {(y_train == 1).sum()} PD, {(y_train == 0).sum()} saudáveis")
-    print(f"  Teste:  {(y_test == 1).sum()} PD, {(y_test == 0).sum()} saudáveis")
+    print(f"  Train: {(y_train == 1).sum()} PD, {(y_train == 0).sum()} healthy")
+    print(f"  Test:  {(y_test == 1).sum()} PD, {(y_test == 0).sum()} healthy")
 
-    # Verificar que não há sujeitos em ambos os conjuntos
+    # Check that no subject appears in both splits
     train_subjects = set(groups[train_idx])
     test_subjects = set(groups[test_idx])
     overlap = train_subjects & test_subjects

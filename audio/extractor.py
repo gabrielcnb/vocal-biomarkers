@@ -1,13 +1,13 @@
-"""Extração de biomarcadores vocais de arquivos de áudio usando Parselmouth/Praat.
+"""Extract vocal biomarkers from audio files using Parselmouth/Praat.
 
 Extrai as mesmas features do dataset UCI Parkinson's:
-- Frequência fundamental (Fo, Fmax, Fmin)
-- Jitter (variações de frequência)
-- Shimmer (variações de amplitude)
-- HNR/NHR (razão harmônico/ruído)
-- Medidas não-lineares (RPDE, DFA, D2, spread1, spread2, PPE) via nolds
+- Fundamental frequency (Fo, Fmax, Fmin)
+- Jitter (frequency variation)
+- Shimmer (amplitude variation)
+- HNR/NHR (harmonics-to-noise ratio)
+- Non-linear measures (RPDE, DFA, D2, spread1, spread2, PPE) via nolds
 
-Se nolds não estiver disponível ou falhar, usa valores medianos do dataset.
+When nolds is missing or fails, dataset median values are used instead.
 """
 import warnings
 import numpy as np
@@ -26,7 +26,7 @@ except ImportError:
     HAS_NOLDS = False
 
 
-# Valores medianos do dataset UCI (fallback para features não-lineares)
+# UCI dataset medians, the fallback for the non-linear features
 MEDIAN_VALUES = {
     "RPDE": 0.498536,
     "DFA": 0.718099,
@@ -47,16 +47,16 @@ def extract_features(audio_path: str) -> dict:
         dict com as 22 features do dataset UCI
 
     Raises:
-        RuntimeError: se parselmouth não estiver instalado
+        RuntimeError: when parselmouth is not installed
     """
     if not HAS_PARSELMOUTH:
         raise RuntimeError(
-            "Parselmouth não está instalado. Instale com: pip install praat-parselmouth"
+            "Parselmouth is not installed. Install it with: pip install praat-parselmouth"
         )
 
     warnings_list = []
 
-    # Carregar áudio
+    # Load the audio
     sound = parselmouth.Sound(audio_path)
 
     # Pitch analysis
@@ -66,14 +66,14 @@ def extract_features(audio_path: str) -> dict:
 
     if len(f0_values) < 5:
         raise ValueError(
-            "Áudio insuficiente para análise. Grave pelo menos 3 segundos de vogal sustentada (/a/)."
+            "Not enough audio to analyse. Record at least 3 seconds of a sustained vowel (/a/)."
         )
 
     fo_mean = np.mean(f0_values)
     fo_max = np.max(f0_values)
     fo_min = np.min(f0_values)
 
-    # Point process para jitter/shimmer
+    # Point process for jitter/shimmer
     point_process = call(sound, "To PointProcess (periodic, cc)", 75.0, 600.0)
 
     # Jitter
@@ -106,7 +106,7 @@ def extract_features(audio_path: str) -> dict:
     hnr = call(harmonicity, "Get mean", 0, 0)
     nhr = 1.0 / (10 ** (hnr / 10)) if hnr > 0 else 0.5  # NHR = 1/HNR_linear
 
-    # Medidas não-lineares
+    # Non-linear measures
     nonlinear = _extract_nonlinear(f0_values, sound)
 
     features = {
@@ -133,13 +133,13 @@ def extract_features(audio_path: str) -> dict:
     for k, v in features.items():
         if v is None or np.isnan(v) or np.isinf(v):
             features[k] = MEDIAN_VALUES.get(k, 0.0)
-            warnings_list.append(f"Feature {k} teve valor inválido, usando mediana")
+            warnings_list.append(f"Feature {k} had an invalid value; using the median")
 
     return features, warnings_list
 
 
 def _extract_nonlinear(f0_values: np.ndarray, sound) -> dict:
-    """Tenta extrair features não-lineares usando nolds.
+    """Try to extract the non-linear features with nolds.
 
     Se falhar, retorna valores medianos do dataset.
     """
@@ -154,7 +154,7 @@ def _extract_nonlinear(f0_values: np.ndarray, sound) -> dict:
                 warnings.simplefilter("ignore")
                 result["RPDE"] = nolds.sampen(f0_values, emb_dim=2)
                 if np.isnan(result["RPDE"]) or np.isinf(result["RPDE"]):
-                    raise ValueError("RPDE inválido")
+                    raise ValueError("invalid RPDE")
         except Exception:
             result["RPDE"] = MEDIAN_VALUES["RPDE"]
             used_median.append("RPDE")
@@ -164,7 +164,7 @@ def _extract_nonlinear(f0_values: np.ndarray, sound) -> dict:
                 warnings.simplefilter("ignore")
                 result["DFA"] = nolds.dfa(f0_values)
                 if np.isnan(result["DFA"]) or np.isinf(result["DFA"]):
-                    raise ValueError("DFA inválido")
+                    raise ValueError("invalid DFA")
         except Exception:
             result["DFA"] = MEDIAN_VALUES["DFA"]
             used_median.append("DFA")
@@ -174,7 +174,7 @@ def _extract_nonlinear(f0_values: np.ndarray, sound) -> dict:
                 warnings.simplefilter("ignore")
                 result["D2"] = nolds.corr_dim(f0_values, emb_dim=2)
                 if np.isnan(result["D2"]) or np.isinf(result["D2"]):
-                    raise ValueError("D2 inválido")
+                    raise ValueError("invalid D2")
         except Exception:
             result["D2"] = MEDIAN_VALUES["D2"]
             used_median.append("D2")

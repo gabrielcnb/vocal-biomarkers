@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biomarcadores Vocais para Detecção de Parkinson</title>
+    <title>Vocal Biomarkers for Parkinson's Detection</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
@@ -11,48 +11,48 @@
         <div class="container">
             <a href="/" class="nav-brand">Biomarcadores Vocais</a>
             <div class="nav-links">
-                <a href="/" class="active">Predição</a>
-                <a href="/evaluation">Avaliação dos Modelos</a>
+                <a href="/" class="active">Prediction</a>
+                <a href="/evaluation">Model Evaluation</a>
             </div>
         </div>
     </nav>
 
     <main class="container">
         <div class="disclaimer">
-            <strong>AVISO IMPORTANTE:</strong> Esta ferramenta é exclusivamente para fins de pesquisa e educação.
-            <strong>NÃO</strong> é um instrumento de diagnóstico médico. Consulte sempre um profissional de saúde
-            qualificado para avaliação clínica. Resultados não substituem exames médicos.
+            <strong>IMPORTANT NOTICE:</strong> This tool is strictly for research and education.
+            <strong>It is NOT</strong> a medical diagnostic instrument. Always consult a qualified
+            healthcare professional for clinical assessment. Results do not replace medical examination.
         </div>
 
-        <h1>Detecção de Indicadores de Parkinson por Análise Vocal</h1>
+        <h1>Detecting Parkinson's Indicators through Vocal Analysis</h1>
         <p class="subtitle">
-            Baseado no dataset de biomarcadores vocais de Little et al. (2007).
-            Análise de disfonias presentes em ~90% dos pacientes com doença de Parkinson.
+            Based on the vocal biomarker dataset from Little et al. (2007).
+            Analysis of dysphonia, present in ~90% of patients with Parkinson's disease.
         </p>
 
         {% if not model_exists %}
         <div class="alert alert-warning">
-            <strong>Modelo não treinado.</strong> Execute <code>python train.py</code> antes de fazer predições.
+            <strong>Model not trained.</strong> Run <code>python train.py</code> before making predictions.
         </div>
         {% endif %}
 
         <div class="tabs">
-            <button class="tab-btn active" data-tab="upload">Enviar Áudio</button>
-            <button class="tab-btn" data-tab="manual">Entrada Manual</button>
+            <button class="tab-btn active" data-tab="upload">Upload Audio</button>
+            <button class="tab-btn" data-tab="manual">Manual Entry</button>
         </div>
 
         <!-- Tab: Upload -->
         <div id="tab-upload" class="tab-content active">
             <div class="card">
-                <h2>Análise de Arquivo de Áudio</h2>
-                <p>Envie uma gravação de vogal sustentada (/a/) com pelo menos 3 segundos. Formato WAV recomendado.</p>
+                <h2>Audio File Analysis</h2>
+                <p>Upload a sustained vowel (/a/) recording of at least 3 seconds. WAV is recommended.</p>
                 <form id="upload-form" enctype="multipart/form-data">
                     <div class="form-group">
-                        <label for="audio-file">Arquivo de Áudio (.wav)</label>
+                        <label for="audio-file">Audio File (.wav)</label>
                         <input type="file" id="audio-file" name="audio" accept=".wav,.mp3,.ogg,.flac">
                     </div>
                     <button type="submit" class="btn btn-primary" {{ 'disabled' if not model_exists }}>
-                        Analisar Áudio
+                        Analyse Audio
                     </button>
                 </form>
             </div>
@@ -61,8 +61,8 @@
         <!-- Tab: Manual -->
         <div id="tab-manual" class="tab-content">
             <div class="card">
-                <h2>Entrada Manual de Features</h2>
-                <p>Insira os 22 biomarcadores vocais extraídos por software de análise acústica (ex: Praat).</p>
+                <h2>Manual Feature Entry</h2>
+                <p>Enter the 22 vocal biomarkers extracted by acoustic analysis software (Praat, for example).</p>
                 <form id="manual-form">
                     {% for group_name, features in feature_groups.items() %}
                     <fieldset>
@@ -90,18 +90,18 @@
 
         <!-- Results -->
         <div id="results" class="card results-card" style="display: none;">
-            <h2>Resultado da Análise</h2>
+            <h2>Analysis Result</h2>
             <div id="result-content"></div>
             <div class="disclaimer disclaimer-small">
-                Este resultado é meramente indicativo e <strong>não constitui diagnóstico médico</strong>.
+                This result is indicative only and <strong>is not a medical diagnosis</strong>.
             </div>
         </div>
     </main>
 
     <footer>
         <div class="container">
-            <p>Biomarcadores Vocais para Detecção de Parkinson &mdash; Projeto de Pesquisa</p>
-            <p>Referências: Little et al. (2007), Little et al. (2009), Tsanas et al. (2010)</p>
+            <p>Vocal Biomarkers for Parkinson's Detection &mdash; Research Project</p>
+            <p>References: Little et al. (2007), Little et al. (2009), Tsanas et al. (2010)</p>
         </div>
     </footer>
 

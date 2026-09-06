@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
             e.preventDefault();
             const fileInput = document.getElementById("audio-file");
             if (!fileInput.files.length) {
-                alert("Selecione um arquivo de \u00e1udio.");
+                alert("Select an audio file.");
                 return;
             }
 
@@ -37,10 +37,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (resp.ok) {
                     showResult(data);
                 } else {
-                    showError(data.error || "Erro desconhecido");
+                    showError(data.error || "Unknown error");
                 }
             } catch (err) {
-                showError("Erro de conex\u00e3o com o servidor.");
+                showError("Connection error while reaching the server.");
             } finally {
                 setLoading(btn, false);
             }
@@ -71,10 +71,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (resp.ok) {
                     showResult(data);
                 } else {
-                    showError(data.error || "Erro desconhecido");
+                    showError(data.error || "Unknown error");
                 }
             } catch (err) {
-                showError("Erro de conex\u00e3o com o servidor.");
+                showError("Connection error while reaching the server.");
             } finally {
                 setLoading(btn, false);
             }
@@ -86,10 +86,10 @@ function setLoading(btn, loading) {
     if (loading) {
         btn.disabled = true;
         btn.dataset.origText = btn.textContent;
-        btn.innerHTML = '<span class="loading"></span> Analisando...';
+        btn.innerHTML = '<span class="loading"></span> Analysing...';
     } else {
         btn.disabled = false;
-        btn.textContent = btn.dataset.origText || "Analisar";
+        btn.textContent = btn.dataset.origText || "Analyse";
     }
 }
 
@@ -118,30 +118,30 @@ function showResult(data) {
     if (data.missing_features && data.missing_features.length > 0) {
         missingHtml = `
             <div class="alert alert-warning" style="margin-top: 12px;">
-                <strong>Features ausentes (valor padr\u00e3o utilizado):</strong> ${data.missing_features.join(", ")}
+                <strong>Missing features (default value used):</strong> ${data.missing_features.join(", ")}
             </div>
         `;
     }
 
     content.innerHTML = `
         <p class="${isParkinson ? 'result-positive' : 'result-negative'}">
-            ${isParkinson ? "Indicadores de Parkinson Detectados" : "Nenhum Indicador de Parkinson Detectado"}
+            ${isParkinson ? "Parkinson's Indicators Detected" : "No Parkinson's Indicators Detected"}
         </p>
 
         <div class="confidence-bar">
             <div class="confidence-fill" style="width: ${confidence}%; background: ${barColor};">
-                Confian\u00e7a: ${confidence}%
+                Confidence: ${confidence}%
             </div>
         </div>
 
         <div class="prob-grid">
             <div class="prob-item" style="background: ${isParkinson ? '#fdf2f0' : '#fff'};">
                 <div class="prob-value" style="color: #c0392b;">${probPD}%</div>
-                <div class="prob-label">Probabilidade Parkinson</div>
+                <div class="prob-label">Parkinson's Probability</div>
             </div>
             <div class="prob-item" style="background: ${!isParkinson ? '#e6f5f0' : '#fff'};">
                 <div class="prob-value" style="color: #2e8b6e;">${probHealthy}%</div>
-                <div class="prob-label">Probabilidade Saud\u00e1vel</div>
+                <div class="prob-label">Healthy Probability</div>
             </div>
         </div>
 
@@ -158,7 +158,7 @@ function showError(message) {
     container.style.display = "block";
     content.innerHTML = `
         <div class="alert alert-warning">
-            <strong>Erro:</strong> ${message}
+            <strong>Error:</strong> ${message}
         </div>
     `;
     container.scrollIntoView({ behavior: "smooth", block: "start" });

@@ -1,7 +1,7 @@
 """Treinamento dos 3 classificadores: SVM, Random Forest, XGBoost.
 
 Todos usam GridSearchCV com StratifiedKFold(10) e scoring='roc_auc'.
-class_weight='balanced' para lidar com o desbalanceamento (147 PD vs 48 saudáveis).
+class_weight='balanced' handles the imbalance (147 PD vs 48 healthy).
 """
 import numpy as np
 import joblib
@@ -82,7 +82,7 @@ def train_all(X_train, y_train, scaler, feature_names):
     print("\n" + "=" * 60)
     print("Treinando XGBoost...")
     print("=" * 60)
-    # scale_pos_weight para desbalanceamento
+    # scale_pos_weight for the imbalance
     neg_count = (y_train == 0).sum()
     pos_count = (y_train == 1).sum()
     scale_pos_weight = neg_count / pos_count if pos_count > 0 else 1.0

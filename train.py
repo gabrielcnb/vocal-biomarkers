@@ -1,10 +1,10 @@
-"""Pipeline principal de treinamento e avaliação.
+"""Main training and evaluation pipeline.
 
 Executa:
 1. Download e carregamento do dataset (group-aware split)
 2. Treinamento dos 3 modelos (SVM, RF, XGBoost)
-3. Avaliação completa com plots
-4. Sumário final
+3. Full evaluation with plots
+4. Final summary
 """
 import sys
 import time
@@ -21,7 +21,7 @@ from ml.evaluate import evaluate_all
 def main():
     print("=" * 70)
     print("  VOCAL BIOMARKERS FOR PARKINSON'S DETECTION")
-    print("  Pipeline de Treinamento e Avaliação")
+    print("  Training and Evaluation Pipeline")
     print("=" * 70)
 
     start_time = time.time()
@@ -34,16 +34,16 @@ def main():
     print("\n[2/3] Treinando modelos...")
     results = train_all(X_train, y_train, scaler, feature_names)
 
-    # 3. Avaliação
+    # 3. Evaluation
     print("\n[3/3] Avaliando modelos no conjunto de teste...")
     metrics = evaluate_all(results, X_test, y_test, feature_names)
 
-    # Sumário
+    # Summary
     elapsed = time.time() - start_time
     print("\n" + "=" * 70)
     print("  RESULTADOS FINAIS (Conjunto de Teste - Group-Aware Split)")
     print("=" * 70)
-    print(f"{'Modelo':<18} {'Acurácia':>10} {'Precisão':>10} {'Recall':>10} {'F1':>10} {'AUC':>10} {'CV AUC':>10}")
+    print(f"{'Model':<18} {'Accuracy':>10} {'Precision':>10} {'Recall':>10} {'F1':>10} {'AUC':>10} {'CV AUC':>10}")
     print("-" * 78)
     for name, m in metrics.items():
         print(

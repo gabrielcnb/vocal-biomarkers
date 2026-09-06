@@ -1,4 +1,4 @@
-"""Configuração central do projeto Vocal Biomarkers."""
+"""Central configuration for the Vocal Biomarkers project."""
 import os
 from pathlib import Path
 
@@ -38,36 +38,36 @@ FLASK_DEBUG = os.getenv("FLASK_DEBUG", "false").lower() == "true"
 
 # Feature groups for UI
 FEATURE_GROUPS = {
-    "Frequência Fundamental": [
-        ("MDVP:Fo(Hz)", "Frequência fundamental média"),
-        ("MDVP:Fhi(Hz)", "Frequência fundamental máxima"),
-        ("MDVP:Flo(Hz)", "Frequência fundamental mínima"),
+    "Fundamental Frequency": [
+        ("MDVP:Fo(Hz)", "Average fundamental frequency"),
+        ("MDVP:Fhi(Hz)", "Maximum fundamental frequency"),
+        ("MDVP:Flo(Hz)", "Minimum fundamental frequency"),
     ],
-    "Jitter (Variação de Frequência)": [
-        ("MDVP:Jitter(%)", "Jitter percentual"),
-        ("MDVP:Jitter(Abs)", "Jitter absoluto"),
-        ("MDVP:RAP", "Perturbação relativa média"),
-        ("MDVP:PPQ", "Quociente de perturbação de período"),
-        ("Jitter:DDP", "Diferença de diferenças de período"),
+    "Jitter (Frequency Variation)": [
+        ("MDVP:Jitter(%)", "Jitter, percentage"),
+        ("MDVP:Jitter(Abs)", "Jitter, absolute"),
+        ("MDVP:RAP", "Relative average perturbation"),
+        ("MDVP:PPQ", "Period perturbation quotient"),
+        ("Jitter:DDP", "Difference of period differences"),
     ],
-    "Shimmer (Variação de Amplitude)": [
-        ("MDVP:Shimmer", "Shimmer local"),
-        ("MDVP:Shimmer(dB)", "Shimmer em dB"),
-        ("Shimmer:APQ3", "Quociente de perturbação de amplitude 3"),
-        ("Shimmer:APQ5", "Quociente de perturbação de amplitude 5"),
-        ("MDVP:APQ", "Quociente de perturbação de amplitude"),
-        ("Shimmer:DDA", "Diferença de diferenças de amplitude"),
+    "Shimmer (Amplitude Variation)": [
+        ("MDVP:Shimmer", "Local shimmer"),
+        ("MDVP:Shimmer(dB)", "Shimmer in dB"),
+        ("Shimmer:APQ3", "Amplitude perturbation quotient 3"),
+        ("Shimmer:APQ5", "Amplitude perturbation quotient 5"),
+        ("MDVP:APQ", "Amplitude perturbation quotient"),
+        ("Shimmer:DDA", "Difference of amplitude differences"),
     ],
-    "Razão Harmônico/Ruído": [
-        ("NHR", "Razão ruído-harmônico"),
-        ("HNR", "Razão harmônico-ruído"),
+    "Harmonics-to-Noise Ratio": [
+        ("NHR", "Noise-to-harmonics ratio"),
+        ("HNR", "Harmonics-to-noise ratio"),
     ],
-    "Medidas Não-Lineares": [
-        ("RPDE", "Entropia de recorrência"),
-        ("DFA", "Análise de flutuação destendenciada"),
-        ("D2", "Dimensão de correlação"),
-        ("spread1", "Medida fundamental de variação de frequência"),
-        ("spread2", "Medida de variação de frequência"),
-        ("PPE", "Entropia de período de pitch"),
+    "Non-Linear Measures": [
+        ("RPDE", "Recurrence period density entropy"),
+        ("DFA", "Detrended fluctuation analysis"),
+        ("D2", "Correlation dimension"),
+        ("spread1", "Fundamental frequency variation measure"),
+        ("spread2", "Frequency variation measure"),
+        ("PPE", "Pitch period entropy"),
     ],
 }

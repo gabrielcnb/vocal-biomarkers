@@ -1,10 +1,10 @@
-"""Avaliação completa dos modelos treinados.
+"""Full evaluation of the trained models.
 
 Gera:
 - Curvas ROC sobrepostas com AUC
-- Matrizes de confusão (1x3 heatmaps)
-- Importância de features (RF, XGBoost, SVM permutation)
-- Comparação de métricas em barra
+- Confusion matrices (1x3 heatmaps)
+- Feature importance (RF, XGBoost, SVM permutation)
+- Metric comparison bar chart
 """
 import numpy as np
 import matplotlib
@@ -37,7 +37,7 @@ def evaluate_all(models_dict, X_test, y_test, feature_names):
         feature_names: lista de nomes das features
 
     Returns:
-        dict: métricas de cada modelo
+        dict: metrics for each model
     """
     PLOTS_DIR.mkdir(parents=True, exist_ok=True)
     plt.style.use("seaborn-v0_8-whitegrid")
@@ -60,18 +60,18 @@ def evaluate_all(models_dict, X_test, y_test, feature_names):
         print(f"\n{'=' * 50}")
         print(f"Modelo: {name}")
         print(f"{'=' * 50}")
-        print(classification_report(y_test, y_pred, target_names=["Saudável", "Parkinson"]))
+        print(classification_report(y_test, y_pred, target_names=["Healthy", "Parkinson"]))
 
     # --- 1. Curvas ROC ---
     _plot_roc_curves(models_dict, X_test, y_test)
 
-    # --- 2. Matrizes de Confusão ---
+    # --- 2. Confusion Matrices ---
     _plot_confusion_matrices(models_dict, X_test, y_test)
 
-    # --- 3. Importância de Features ---
+    # --- 3. Feature Importance ---
     _plot_feature_importance(models_dict, X_test, y_test, feature_names)
 
-    # --- 4. Comparação de Métricas ---
+    # --- 4. Metric Comparison ---
     _plot_metrics_comparison(metrics)
 
     return metrics
@@ -91,7 +91,7 @@ def _plot_roc_curves(models_dict, X_test, y_test):
     ax.plot([0, 1], [0, 1], "k--", lw=1, alpha=0.5)
     ax.set_xlabel("Taxa de Falso Positivo", fontsize=12)
     ax.set_ylabel("Taxa de Verdadeiro Positivo", fontsize=12)
-    ax.set_title("Curvas ROC - Detecção de Parkinson por Biomarcadores Vocais", fontsize=13)
+    ax.set_title("ROC Curves - Parkinson's Detection from Vocal Biomarkers", fontsize=13)
     ax.legend(loc="lower right", fontsize=11)
     ax.set_xlim([0, 1])
     ax.set_ylim([0, 1.05])
@@ -102,9 +102,9 @@ def _plot_roc_curves(models_dict, X_test, y_test):
 
 
 def _plot_confusion_matrices(models_dict, X_test, y_test):
-    """Matrizes de confusão lado a lado."""
+    """Confusion matrices side by side."""
     fig, axes = plt.subplots(1, 3, figsize=(15, 4.5))
-    labels = ["Saudável", "Parkinson"]
+    labels = ["Healthy", "Parkinson"]
 
     for ax, (name, (model, _)) in zip(axes, models_dict.items()):
         y_pred = model.predict(X_test)
@@ -123,7 +123,7 @@ def _plot_confusion_matrices(models_dict, X_test, y_test):
         ax.set_ylabel("Real" if ax == axes[0] else "")
         ax.set_xlabel("Previsto")
 
-    plt.suptitle("Matrizes de Confusão", fontsize=14, fontweight="bold", y=1.02)
+    plt.suptitle("Confusion Matrices", fontsize=14, fontweight="bold", y=1.02)
     plt.tight_layout()
     plt.savefig(PLOTS_DIR / "confusion_matrices.png", dpi=150, bbox_inches="tight")
     plt.close()
@@ -131,7 +131,7 @@ def _plot_confusion_matrices(models_dict, X_test, y_test):
 
 
 def _plot_feature_importance(models_dict, X_test, y_test, feature_names):
-    """Importância de features para cada modelo."""
+    """Feature importance for each model."""
     fig, axes = plt.subplots(1, 3, figsize=(18, 7))
 
     for ax, (name, (model, _)) in zip(axes, models_dict.items()):
@@ -154,7 +154,7 @@ def _plot_feature_importance(models_dict, X_test, y_test, feature_names):
         ax.set_yticks(range(len(indices)))
         ax.set_yticklabels(top_features, fontsize=9)
         ax.set_title(f"{name}", fontsize=12, fontweight="bold")
-        ax.set_xlabel("Importância")
+        ax.set_xlabel("Importance")
 
     plt.suptitle("Top 15 Features Mais Importantes", fontsize=14, fontweight="bold", y=1.02)
     plt.tight_layout()
@@ -164,9 +164,9 @@ def _plot_feature_importance(models_dict, X_test, y_test, feature_names):
 
 
 def _plot_metrics_comparison(metrics):
-    """Gráfico de barras comparando métricas."""
+    """Bar chart comparing the metrics."""
     metric_names = ["accuracy", "precision", "recall", "f1", "auc"]
-    metric_labels = ["Acurácia", "Precisão", "Recall", "F1-Score", "AUC"]
+    metric_labels = ["Accuracy", "Precision", "Recall", "F1-Score", "AUC"]
 
     fig, ax = plt.subplots(figsize=(10, 5))
     x = np.arange(len(metric_names))
@@ -187,7 +187,7 @@ def _plot_metrics_comparison(metrics):
             )
 
     ax.set_ylabel("Score", fontsize=12)
-    ax.set_title("Comparação de Modelos - Métricas de Desempenho", fontsize=13)
+    ax.set_title("Model Comparison - Performance Metrics", fontsize=13)
     ax.set_xticks(x + width)
     ax.set_xticklabels(metric_labels, fontsize=11)
     ax.legend(fontsize=11)

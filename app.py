@@ -16,14 +16,14 @@ app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16MB max upload
 
 @app.route("/")
 def index():
-    """Página principal com formulário de predição."""
+    """Main page with the prediction form."""
     model_exists = BEST_MODEL.exists()
     return render_template("index.html", feature_groups=FEATURE_GROUPS, model_exists=model_exists)
 
 
 @app.route("/evaluation")
 def evaluation():
-    """Dashboard de avaliação dos modelos."""
+    """Model evaluation dashboard."""
     plots_dir = Path(__file__).parent / "static" / "plots"
     plots = {
         "roc": (plots_dir / "roc_curves.png").exists(),
@@ -36,7 +36,7 @@ def evaluation():
 
 @app.route("/api/predict/manual", methods=["POST"])
 def predict_manual():
-    """Predição a partir de features inseridas manualmente."""
+    """Predict from manually entered features."""
     try:
         from ml.predict import predict_from_features
 
@@ -48,20 +48,20 @@ def predict_manual():
         return jsonify(result)
 
     except FileNotFoundError:
-        return jsonify({"error": "Modelo não treinado. Execute train.py primeiro."}), 503
+        return jsonify({"error": "Model not trained. Run train.py first."}), 503
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
 @app.route("/api/predict/upload", methods=["POST"])
 def predict_upload():
-    """Predição a partir de arquivo de áudio enviado."""
+    """Predict from an uploaded audio file."""
     try:
         from audio.extractor import extract_features
         from ml.predict import predict_from_features
 
         if "audio" not in request.files:
-            return jsonify({"error": "Nenhum arquivo de áudio enviado"}), 400
+            return jsonify({"error": "No audio file submitted"}), 400
 
         audio_file = request.files["audio"]
         if audio_file.filename == "":
@@ -83,13 +83,13 @@ def predict_upload():
             os.unlink(tmp_path)
 
     except FileNotFoundError:
-        return jsonify({"error": "Modelo não treinado. Execute train.py primeiro."}), 503
+        return jsonify({"error": "Model not trained. Run train.py first."}), 503
     except RuntimeError as e:
         return jsonify({"error": str(e)}), 500
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
-        return jsonify({"error": f"Erro na extração de features: {str(e)}"}), 500
+        return jsonify({"error": f"Feature extraction failed: {str(e)}"}), 500
 
 
 if __name__ == "__main__":
