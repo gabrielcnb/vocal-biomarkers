@@ -2,6 +2,11 @@
 
 ## Overview
 
+![Python](https://img.shields.io/badge/Python-3.9+-blue?logo=python)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-1.4+-orange?logo=scikit-learn)
+![Flask](https://img.shields.io/badge/Flask-3.0-000000?logo=flask&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green)
+
 A machine learning system for detecting indicators of Parkinson's disease from vocal biomarkers. It uses the UCI Parkinson's dataset (Little et al., 2007), comprising 195 recordings from 31 subjects, and extracts 22 acoustic measures from sustained phonations. It implements three classifiers (SVM, Random Forest, XGBoost) with a **group-aware split** to prevent data leakage across subjects.
 
 **WARNING: This tool is intended solely for research and educational purposes. It is NOT a medical diagnostic instrument.**
